@@ -16,19 +16,10 @@ HIDDIFY_SERVER_CONFIG_FILES=(
 )
 
 function ensure_hiddify_data_dirs() {
-    # Permanent storage only: certs, logs, databases, runtime-writable snippets.
+    # Shared permanent paths only. Each service creates its own data dirs.
     mkdir -p \
         "$HIDDIFY_DATA/ssl" \
         "$HIDDIFY_DATA/log/system" \
-        "$HIDDIFY_DATA/mysql" \
-        "$HIDDIFY_DATA/redis" \
-        "$HIDDIFY_DATA/hiddify-core" \
-        "$HIDDIFY_DATA/hiddify-panel" \
-        "$HIDDIFY_DATA/services/nginx/parts" \
-        "$HIDDIFY_DATA/services/acme.sh/www" \
-        "$HIDDIFY_DATA/services/hiddify-panel" \
-        "$HIDDIFY_DATA/services/mysql" \
-        "$HIDDIFY_DATA/services/redis" \
         "$HIDDIFY_GENERATED/client" \
         "$HIDDIFY_GENERATED/include"
     if getent group hiddify-common >/dev/null 2>&1; then
@@ -40,9 +31,14 @@ function ensure_hiddify_data_dirs() {
             chown -R root:hiddify-common "$HIDDIFY_GENERATED" 2>/dev/null || true
         fi
     fi
-    
 }
 
+# Usage: hiddify_random_password [length]  (default 49)
+function hiddify_random_password() {
+    local len="${1:-49}"
+    < /dev/urandom tr -dc 'a-zA-Z0-9' | head -c "$len"
+    echo
+}
 
 function get_commit_version() {
     json_data=$(curl -sL -H "Accept: application/json" "https://github.com/hiddify/$1/commits/main.atom")
