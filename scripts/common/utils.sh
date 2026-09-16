@@ -33,6 +33,17 @@ function ensure_hiddify_data_dirs() {
     fi
 }
 
+# Default per-service folders under data/ and generated/ (created on run if missing).
+# Usage: ensure_service_runtime_dirs nginx
+#        ensure_service_runtime_dirs acme.sh
+function ensure_service_runtime_dirs() {
+    local slug="${1:?service name required}"
+    ensure_hiddify_data_dirs
+    mkdir -p \
+        "$HIDDIFY_DATA/services/$slug" \
+        "$HIDDIFY_GENERATED/$slug"
+}
+
 # Usage: hiddify_random_password [length]  (default 49)
 function hiddify_random_password() {
     local len="${1:-49}"

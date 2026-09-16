@@ -209,7 +209,14 @@ function runsh() {
     #         echo "$2 not found"
     # fi
     if [[ $? == 0 && -f $command ]]; then
-        
+        # Ensure default data/services/<name> and generated/<name> before install/run
+        if [[ "$2" == services/* ]]; then
+            local svc_slug="${2#services/}"
+            svc_slug="${svc_slug%%/*}"
+            ensure_service_runtime_dirs "$svc_slug"
+        else
+            ensure_hiddify_data_dirs
+        fi
         echo "===$command $2"
         bash $command
     fi
